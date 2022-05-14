@@ -1,0 +1,73 @@
+version: '2'
+networks: 
+  host:
+
+services:
+  etcd1:
+    image: quay.io/coreos/etcd
+    container_name: etcd1
+    command: etcd -name etcd1 -advertise-client-urls http://0.0.0.0:2379 -listen-client-urls http://0.0.0.0:2379 -listen-peer-urls http://0.0.0.0:2380 -initial-cluster-token etcd-cluster -initial-cluster "etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380" -initial-cluster-state new
+    ports:
+      - "2379:2379"
+      - 2380
+    networks: 
+      - host
+    environment:
+      - ETCDCTL_API=3  
+
+  etcd2:
+    image: quay.io/coreos/etcd
+    container_name: etcd2
+    command: etcd -name etcd2 -advertise-client-urls http://0.0.0.0:2379 -listen-client-urls http://0.0.0.0:2379 -listen-peer-urls http://0.0.0.0:2380 -initial-cluster-token etcd-cluster -initial-cluster "etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380" -initial-cluster-state new
+    ports:
+      - 2379
+      - 2380
+    networks: 
+      - host
+    environment:
+      - ETCDCTL_API=3  
+
+  etcd3:
+    image: quay.io/coreos/etcd
+    container_name: etcd3
+    command: etcd -name etcd3 -advertise-client-urls http://0.0.0.0:2379 -listen-client-urls http://0.0.0.0:2379 -listen-peer-urls http://0.0.0.0:2380 -initial-cluster-token etcd-cluster -initial-cluster "etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380" -initial-cluster-state new
+    ports:
+      - 2379
+      - 2380
+    networks:
+      - host
+    environment:
+      - ETCDCTL_API=3    
+     
+  redis:
+     image: redis:latest
+     restart: "no"
+     container_name: redis
+     ports:
+       - "5070:6379"
+     volumes:
+       - ./redis.conf:/etc/redis/redis.conf 
+       - ./data:/data      
+     command: redis-server /etc/redis/redis.conf 
+     privileged: true
+     networks: 
+      - host
+     environment:
+      - ETCDCTL_API=3   
+
+  mysql:
+    restart: always
+    image: mysql:5.7.18
+    container_name: mysql-lable
+    volumes:
+      - ./mysql/mydir:/mydir
+      - ./mysql/datadir:/var/lib/mysql
+      - ./mysql/conf/my.cnf:/etc/my.cnf
+      - ./mysql/source:/docker-entrypoint-initdb.d
+    environment:
+      - "MYSQL_ROOT_PASSWORD=zxc123"
+      - "MYSQL_DATABASE=test"
+      - "TZ=Asia/Shanghai"
+    ports:
+      - 3306:3306
+    

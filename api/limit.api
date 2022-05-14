@@ -1,0 +1,17 @@
+syntax = "v1"
+
+type (
+	isLimitReq {
+		Key string `form:"key"`
+	}
+	isLimitResp {
+		IsLimit bool `json:"is_limit"`
+	}
+)
+
+service limit-api {
+	@server(
+		handler: IsLimitHandler
+	)
+	get /is_limit(isLimitReq) returns(isLimitResp)
+}

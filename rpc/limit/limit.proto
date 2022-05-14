@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package limit;
+option go_package="./limit";
+
+message LimitReq {
+  string key = 1;
+}
+
+message LimitResp {
+  bool isLimit = 1;
+}
+
+service Limit {
+  rpc IsLimit(LimitReq) returns(LimitResp);
+}
